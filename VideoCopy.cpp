@@ -127,6 +127,28 @@ int VideoCopy::show_I_FreamTime()
 	return ret;
 }
 
+int VideoCopy::screenShot(const std::string& path, const std::string& timeStamp)
+{
+	//path format 11:22:33::4  前面3位为时间，最后一位为当前帧的序列号
+	int miliionSec = 0;
+	
+	int setp = 3600;
+	int offset = 0;
+
+	for(int loop(3);loop >0;loop--){
+		size_t npos = timeStamp.find(':', offset);
+		miliionSec += setp* std::stoi(timeStamp.substr(offset, npos));
+		offset = npos + 1;
+		setp /= 60;
+	}
+
+	size_t npos = timeStamp.find(':', offset);
+	int frameIdx = std::stoi(timeStamp.substr(offset, npos));
+
+	std::cout << "screen time " << miliionSec << " frame index " << frameIdx << std::endl;
+	return 0;
+}
+
 int VideoCopy::exec()
 {
 	int ret = ERRORCODE::ERROR_NONE;
