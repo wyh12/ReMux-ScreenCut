@@ -1,6 +1,9 @@
 #pragma once
 #include "Decoder.h"
 #include <thread>
+extern "C" {
+#include <libswscale/swscale.h>
+}
 enum ERRORCODE{
 	ERROR_NONE = 0,
 	ERROR_PARAM = -1,   //输入参数错误
@@ -17,15 +20,19 @@ public:
 
 	virtual int decoderStream() override;
 	virtual int stopStream() override;
-	int init_encoder(const std::string& path,int64_t startPts,int64_t endPts = -1);
-	int show_I_FreamTime();
+	int init_encoder(const std::string& path,const std::string& startPts, const std::string& endPts);
+	int makeJpg(const std::string& position,const std::string& path);
+	
 protected:
 	int exec();
 	void timebaseConvert(AVPacket& packet, const AVRational& Tsrc, const AVRational& Tdst);
-
+	int screenShot(const std::string& jpgName, AVFrame* frame);
+	int findKeyFrame(float position, const std::string& path);
+	float timeConvert(const std::string& position);
+	AVFrame* pixformatScale(AVFrame* frame);
 private:
-	std::thread* handle_decode;
 	bool run;
+	std::thread* handle_decode;
 
 private:
 	AVFormatContext* outFmtCtx;
@@ -34,10 +41,11 @@ private:
 
 private:
 	//视频remux的起止时间
-	int64_t SPTS;  
-	int64_t EPTS;  
+	float SPTS;  
+	float EPTS;
 
 	int dst_vIndex;
 	int dst_aIndex;
+
 };
 
